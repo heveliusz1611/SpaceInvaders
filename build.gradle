@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+// Project settings
+group = 'com.spaceinvaders'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+// Code coverage with Jacoco
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = '0.8.12'
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+}
+
+// Application configuration
+application {
+    mainClass = 'com.spaceinvaders.SpaceInvadersGame'
+}
+
+// Testing tasks
+test {
+    useJUnitPlatform()
+}
