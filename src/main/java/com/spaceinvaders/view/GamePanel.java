@@ -449,6 +449,7 @@ public final class GamePanel extends Parent {
                 continue;
             }
             if (hitShield(bullet, true) || hitAlien(bullet) || hitUfo(bullet)) {
+                content.getChildren().remove(bullet.node);
                 it.remove();
             }
         }
