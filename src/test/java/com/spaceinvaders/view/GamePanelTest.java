@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javafx.scene.Group;
+import javafx.scene.text.Text;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,9 @@ import java.util.List;
 /**
  * Headless checks of GamePanel's projectile lifecycle: every projectile that
  * leaves the tracking lists must also leave the scene graph, otherwise its
- * sprite stays frozen on the playfield as a leftover artifact.
+ * sprite stays frozen on the playfield as a leftover artifact. Also guards
+ * the lives accounting: a cannon death must cost a life, and running out of
+ * lives must end the game.
  */
 class GamePanelTest {
 
@@ -112,6 +115,48 @@ class GamePanelTest {
         assertTrue(bullets.isEmpty() && bombs.isEmpty(), "lists emptied");
         assertTrue(bullet.node.getParent() == null && bomb.node.getParent() == null,
                 "every sprite detached, ready for respawn/game-over/wave reload");
+    }
+
+    @Test
+    void bombHittingTheCannonCostsALifeAndUpdatesTheHud() {
+        spawnPanel();
+        Player player = Reflect.getAs(panel, "player");
+        Projectile bomb = Projectile.bomb(player.x + Player.W / 2.0, Constants.PLAYER_Y - 1, 55);
+        bombs.add(bomb);
+        content.getChildren().add(bomb.node);
+
+        Reflect.invoke(panel, "checkBombCollisions");
+
+        assertTrue(bombs.isEmpty(), "the lethal bomb left the tracking list");
+        assertNull(bomb.node.getParent());
+        assertEquals(2, (int) Reflect.get(panel, "lives"), "the cannon kill costs one life");
+        assertEquals("PLAYER_DYING", String.valueOf(Reflect.get(panel, "state")));
+        Hud hud = Reflect.getAs(panel, "hud");
+        Text livesValue = Reflect.getAs(hud, "livesValue");
+        assertEquals("2", livesValue.getText(), "the HUD counter must follow the lives field");
+    }
+
+    @Test
+    void losingEveryLifeEndsTheGame() {
+        spawnPanel();
+        assertEquals(3, (int) Reflect.get(panel, "lives"), "starts with 3 lives");
+
+        // three cannon kills: 3 -> 2 (respawn), 2 -> 1 (respawn), 1 -> 0 (game over)
+        for (int expected = 2; expected >= 0; expected--) {
+            Reflect.invoke(panel, "killPlayer");
+            assertEquals(expected, (int) Reflect.get(panel, "lives"),
+                    "lives tick down with every cannon kill");
+            Reflect.invoke(panel, "afterPlayerDeath");
+            if (expected > 0) {
+                assertEquals("PLAYING", String.valueOf(Reflect.get(panel, "state")),
+                        "respawn while lives remain");
+            }
+        }
+
+        assertEquals("GAME_OVER", String.valueOf(Reflect.get(panel, "state")),
+                "no lives left means game over");
+        javafx.scene.Node overlay = Reflect.getAs(panel, "gameOverOverlay");
+        assertTrue(overlay.isVisible(), "the game-over overlay shows");
     }
 
     // ------------------------------------------------------------ helpers

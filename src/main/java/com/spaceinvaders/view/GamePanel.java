@@ -581,6 +581,10 @@ public final class GamePanel extends Parent {
     // ---------------------------------------------------------------- death
 
     private void killPlayer() {
+        if (lives > 0) {
+            lives--;
+        }
+        hud.update(score, hiScore, wave, lives);
         player.node.setVisible(false);
         clearProjectiles();
         deathT = Constants.PLAYER_DEATH_TIME;
