@@ -22,7 +22,7 @@ public final class Player {
     public void move(double dx) {
         double min = 4;
         double max = Constants.GAME_W - W - 4;
-        x = Math.max(min, Math.min(max, x + dx));
+        x = Math.clamp(x + dx, min, max);
         node.setTranslateX(Math.round(x));
     }
 
