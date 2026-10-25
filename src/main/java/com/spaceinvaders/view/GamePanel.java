@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import com.spaceinvaders.audio.Sounds;
 import com.spaceinvaders.config.Constants;
 import com.spaceinvaders.input.KeyInput;
 import com.spaceinvaders.model.Alien;
@@ -73,6 +74,10 @@ public final class GamePanel extends Parent {
     private boolean invasionReached;
     private boolean lastUfoFromRight;
     private int totalShots;
+
+    // Sound state
+    private int marchStep;      // index into the 4-note march loop
+    private boolean ufoSoundOn; // warble loop currently playing
 
     // Score state
     private int score;
@@ -226,6 +231,9 @@ public final class GamePanel extends Parent {
         if (state == State.PLAYING && input.pressed(KeyCode.P)) {
             paused = !paused;
             pauseOverlay.setVisible(paused);
+            if (paused) {
+                setUfoWarble(false);
+            }
         }
         if (paused) {
             return;
@@ -292,6 +300,7 @@ public final class GamePanel extends Parent {
         gameOverOverlay.setVisible(false);
         bombTimer = 1.2;
         ufoTimer = Constants.UFO_RELOAD_MIN;
+        setUfoWarble(false);
         startWave(false);
     }
 
@@ -304,6 +313,7 @@ public final class GamePanel extends Parent {
         applyGridPosition();
         gridStepAcc = 0;
         invasionReached = false;
+        marchStep = 0;
         wave++;
         waveMsg.setText("WAVE " + wave);
         waveMsg.setVisible(true);
@@ -333,6 +343,7 @@ public final class GamePanel extends Parent {
         bullets.add(bullet);
         bullet.render();
         content.getChildren().add(bullet.node);
+        Sounds.shot();
     }
 
     private void updateGrid(double dt) {
@@ -345,6 +356,7 @@ public final class GamePanel extends Parent {
             gridStepAcc -= interval;
             grid.step();
             applyGridPosition();
+            Sounds.marchNote(marchStep++); // one beat per step, speeds up like the arcade
             for (Alien alien : aliens) {
                 if (alien.isAlive()) {
                     alien.toggleFrame();
@@ -362,6 +374,7 @@ public final class GamePanel extends Parent {
         }
         if (grid.aliveCount() == 0 && state == State.PLAYING) {
             clearProjectiles();
+            setUfoWarble(false);
             state = State.WAVE_CLEAR;
             waveClearT = Constants.WAVE_CLEAR_PAUSE;
         }
@@ -412,6 +425,19 @@ public final class GamePanel extends Parent {
         }
         if (ufo.active) {
             ufo.update(dt);
+        }
+        // The saucer's warble loops while the saucer is on screen, like the cabinet.
+        setUfoWarble(ufo.active);
+    }
+
+    /** Idempotently drives the UFO warble loop. */
+    private void setUfoWarble(boolean on) {
+        if (on && !ufoSoundOn) {
+            ufoSoundOn = true;
+            Sounds.ufoStart();
+        } else if (!on && ufoSoundOn) {
+            ufoSoundOn = false;
+            Sounds.ufoStop();
         }
     }
 
@@ -486,6 +512,7 @@ public final class GamePanel extends Parent {
             alien.kill();
             addExplosion(alienWorldX(alien) + alien.kind.width() / 2.0,
                     alienWorldY(alien) + alien.kind.height() / 2.0, alien.kind.color);
+            Sounds.invaderBoom();
             addScore(alien.kind.points);
             return true;
         }
@@ -502,6 +529,7 @@ public final class GamePanel extends Parent {
         Text points = caption(String.valueOf(value), ufo.x + 4, Constants.UFO_Y + Ufo.H + 9, Constants.UFO_RED, 8);
         content.getChildren().add(points);
         fxList.add(new Fx(points, 1.2));
+        Sounds.ufoStop(); // warble stops the instant the saucer goes down
         ufo.despawn();
         addScore(value);
         return true;
@@ -549,6 +577,7 @@ public final class GamePanel extends Parent {
             Text bonus = caption("EXTRA LIFE", 78, 150, Constants.PLAYER_GREEN, 8);
             content.getChildren().add(bonus);
             fxList.add(new Fx(bonus, 1.4));
+            Sounds.extraLife();
         }
     }
 
@@ -566,6 +595,8 @@ public final class GamePanel extends Parent {
         deathFx.setTranslateX(Math.round(player.x));
         deathFx.setTranslateY(Constants.PLAYER_Y);
         content.getChildren().add(deathFx);
+        setUfoWarble(false); // everything but the crash goes quiet, like the arcade
+        Sounds.playerBoom();
         state = State.PLAYER_DYING;
     }
 
