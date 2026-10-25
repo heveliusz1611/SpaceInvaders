@@ -116,10 +116,10 @@ public final class Shield {
     }
 
     private int clampCol(int col) {
-        return Math.max(0, Math.min(W - 1, col));
+        return Math.clamp(col, 0, W - 1);
     }
 
     private int clampRow(int row) {
-        return Math.max(0, Math.min(H - 1, row));
+        return Math.clamp(row, 0, H - 1);
     }
 }

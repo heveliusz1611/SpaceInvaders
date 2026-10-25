@@ -44,17 +44,13 @@ public final class AlienGrid {
         return count;
     }
 
-    public boolean isAlive(int row, int col) {
-        return alive[row][col];
-    }
-
     public void kill(int row, int col) {
         alive[row][col] = false;
     }
 
     /** Seconds between formation steps for the given live count (classic speed-up). */
     public static double stepInterval(int aliveCount) {
-        double ratio = Math.max(0.0, Math.min(1.0, aliveCount / (double) (Constants.GRID_ROWS * Constants.GRID_COLS)));
+        double ratio = Math.clamp(aliveCount / (double) (Constants.GRID_ROWS * Constants.GRID_COLS), 0.0, 1.0);
         return 0.03 + 0.155 * Math.pow(ratio, 1.7);
     }
 
@@ -97,7 +93,6 @@ public final class AlienGrid {
     public double bottomLocalY() {
         double bottom = 0;
         for (int row = 0; row < Constants.GRID_ROWS; row++) {
-            AlienKind kind = AlienKind.forRow(row);
             for (int col = 0; col < Constants.GRID_COLS; col++) {
                 if (alive[row][col]) {
                     bottom = Math.max(bottom, (row + 1) * Constants.CELL_H);

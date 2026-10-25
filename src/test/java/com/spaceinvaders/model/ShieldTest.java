@@ -3,7 +3,6 @@ package com.spaceinvaders.model;
 import com.spaceinvaders.sprites.SpriteData;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -63,7 +62,8 @@ class ShieldTest {
         Shield shield = new Shield(0, 0);
         shield.blast(5, 10, 3, 0);
         // center and well inside the disc must be gone
-        assertFalse(shield.hit(10.0, 5.0, 1.0, 1.0, true) != null);
+        assertNull(shield.hit(10.0, 5.0, 1.0, 1.0, true),
+                "center and immediately around the blast must be carved away");
         // far pixels (solid corner of the pattern, far from the blast) survive
         int[] far = shield.hit(4.0, 4.0, 1.0, 1.0, true);
         assertNotNull(far, "pixels far from the blast survive");

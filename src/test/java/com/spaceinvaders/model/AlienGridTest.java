@@ -81,7 +81,7 @@ class AlienGridTest {
         for (int i = 0; i < 500; i++) {
             int[] spot = grid.randomBottomAlien(rng);
             assertNotNull(spot);
-            assertEquals(spot[0], 4, "full grid: bottom row is row 4");
+            assertEquals(4, spot[0], "full grid: bottom row is row 4");
             columnsSeen[spot[1]] = true;
         }
         for (boolean seen : columnsSeen) {
@@ -91,6 +91,7 @@ class AlienGridTest {
             grid.kill(4, col);
         }
         int[] spot = grid.randomBottomAlien(rng);
+        assertNotNull(spot, "should still have a live column after clearing row 4");
         assertEquals(3, spot[0], "second row from the bottom once row 4 is empty");
     }
 

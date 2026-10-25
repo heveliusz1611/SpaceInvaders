@@ -71,7 +71,6 @@ public final class GamePanel extends Parent {
     private double deathT;
     private double deathFxT;
     private double blinkClock;
-    private boolean invasionReached;
     private boolean lastUfoFromRight;
     private int totalShots;
 
@@ -147,7 +146,7 @@ public final class GamePanel extends Parent {
         try {
             Rectangle2D screen = Screen.getPrimary().getVisualBounds();
             double usable = screen.getHeight() - 90;
-            return Math.max(2, Math.min(4, Math.floor(usable / Constants.GAME_H)));
+            return Math.clamp(Math.floor(usable / Constants.GAME_H), 2, 4);
         } catch (Throwable headless) {
             return Constants.DEFAULT_SCALE;
         }
@@ -274,7 +273,7 @@ public final class GamePanel extends Parent {
             case WAVE_CLEAR -> {
                 waveClearT -= dt;
                 if (waveClearT <= 0) {
-                    startWave(false);
+                    startWave();
                 }
             }
         }
@@ -288,7 +287,6 @@ public final class GamePanel extends Parent {
         lives = 3;
         wave = 0;
         extraLifeGiven = false;
-        invasionReached = false;
         totalShots = 0;
         clearProjectiles();
         clearFx();
@@ -301,18 +299,17 @@ public final class GamePanel extends Parent {
         bombTimer = 1.2;
         ufoTimer = Constants.UFO_RELOAD_MIN;
         setUfoWarble(false);
-        startWave(false);
+        startWave();
     }
 
     /** Reloads the alien grid and resumes play (the "reloadable grid"). */
-    private void startWave(boolean firstWave) {
+    private void startWave() {
         grid.reset();
         for (Alien alien : aliens) {
             alien.reset();
         }
         applyGridPosition();
         gridStepAcc = 0;
-        invasionReached = false;
         marchStep = 0;
         wave++;
         waveMsg.setText("WAVE " + wave);
@@ -332,7 +329,7 @@ public final class GamePanel extends Parent {
         if (dx != 0) {
             player.move(dx * Constants.PLAYER_SPEED * dt);
         }
-        if (input.held(KeyCode.SPACE) && bullets.size() < 1) {
+        if (input.held(KeyCode.SPACE) && bullets.isEmpty()) {
             fire();
         }
     }
@@ -365,7 +362,6 @@ public final class GamePanel extends Parent {
             // The march reached the cannon row: automatic loss, like the arcade.
             double bottomWorld = Constants.GRID_TOP_Y + grid.getTy() + grid.bottomLocalY();
             if (bottomWorld >= Constants.PLAYER_Y + 4 && grid.aliveCount() > 0) {
-                invasionReached = true;
                 lives = 0;
                 hud.update(score, hiScore, wave, lives);
                 killPlayer();

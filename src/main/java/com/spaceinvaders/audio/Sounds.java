@@ -198,7 +198,7 @@ public final class Sounds {
             lp += lpCoeff * ((RNG.nextDouble() * 2 - 1) - lp);
             double env = Math.exp(-decay * t);
             if (faltering) {
-                env *= Math.min(1, Math.max(0, 0.65 + 0.5 * Math.sin(2 * Math.PI * 17 * t) * Math.sin(2 * Math.PI * 7.3 * t)));
+                env *= Math.clamp(0.65 + 0.5 * Math.sin(2 * Math.PI * 17 * t) * Math.sin(2 * Math.PI * 7.3 * t), 0, 1);
             }
             double v = Math.clamp(lp * env, -1.0, 1.0);
             int s = (int) (v * 30000);

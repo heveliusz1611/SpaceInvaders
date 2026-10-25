@@ -20,15 +20,15 @@ import javafx.scene.text.Text;
  */
 public final class Hud {
     public final Group node = new Group();
-    private final Text scoreValue = text(Constants.HUD_WHITE, 8);
-    private final Text hiValue = text(Constants.HUD_WHITE, 8);
-    private final Text waveValue = text(Constants.PLAYER_GREEN, 8);
-    private final Text livesValue = text(Constants.PLAYER_GREEN, 8);
+    private final Text scoreValue = text(Constants.HUD_WHITE);
+    private final Text hiValue = text(Constants.HUD_WHITE);
+    private final Text waveValue = text(Constants.PLAYER_GREEN);
+    private final Text livesValue = text(Constants.PLAYER_GREEN);
     private final List<Group> lifeIcons = new ArrayList<>();
 
     public Hud() {
-        createText("SCORE<1>", 8, 9, Constants.PLAYER_GREEN);
-        createText("HI-SCORE", 152, 9, Constants.PLAYER_GREEN);
+        createText("SCORE<1>", 8);
+        createText("HI-SCORE", 152);
         node.getChildren().addAll(scoreValue, hiValue, waveValue, livesValue);
 
         Rectangle floor = new Rectangle(0, Constants.FLOOR_Y, Constants.GAME_W, 1);
@@ -57,23 +57,23 @@ public final class Hud {
         hiValue.setText(String.format("%05d", hiScore));
         waveValue.setText(String.format("WAVE %02d", wave));
         livesValue.setText(String.valueOf(lives));
-        int reserves = Math.max(0, Math.min(3, lives - 1));
+        int reserves = Math.clamp(lives - 1, 0, 3);
         for (int i = 0; i < 3; i++) {
             lifeIcons.get(i).setVisible(i < reserves);
         }
     }
 
-    private void createText(String label, double x, double baselineY, javafx.scene.paint.Color color) {
-        Text text = text(color, 8);
+    private void createText(String label, double x) {
+        Text text = text(Constants.PLAYER_GREEN);
         text.setText(label);
         text.setX(x);
-        text.setY(baselineY);
+        text.setY(9);
         node.getChildren().add(text);
     }
 
-    private static Text text(javafx.scene.paint.Color color, double size) {
+    private static Text text(javafx.scene.paint.Color color) {
         Text text = new Text();
-        text.setFont(Font.font("Monospaced", FontWeight.BOLD, size));
+        text.setFont(Font.font("Monospaced", FontWeight.BOLD, 8));
         text.setFill(color);
         return text;
     }
