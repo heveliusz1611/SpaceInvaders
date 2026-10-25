@@ -54,6 +54,8 @@ public final class Constants {
 
     // Timing (seconds)
     public static final double WAVE_CLEAR_PAUSE = 1.6;
+    public static final double WAVE_MSG_TIME = 1.8;   // how long the "WAVE n" banner stays up
+    public static final double WAVE_MSG_BLINK = 0.3;  // blink period of the wave banner
     public static final double PLAYER_DEATH_TIME = 1.1;
     public static final double BOMB_RELOAD_MIN = 0.55;
     public static final double BOMB_RELOAD_RANGE = 0.9;

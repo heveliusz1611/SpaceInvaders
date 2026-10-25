@@ -68,6 +68,8 @@ public final class GamePanel extends Parent {
     private double bombTimer = 1.5;
     private double ufoTimer;
     private double waveClearT;
+    private double waveMsgT;
+    private double waveMsgBlink;
     private double deathT;
     private double deathFxT;
     private double blinkClock;
@@ -181,7 +183,7 @@ public final class GamePanel extends Parent {
         titleOverlay.getChildren().add(caption("PLAY", 98, 96, Constants.HUD_WHITE, 8));
         titleOverlay.getChildren().add(caption("SPACE", 42, 116, AlienKind.SQUID.color, 14));
         titleOverlay.getChildren().add(caption("INVADERS", 76, 116, AlienKind.CRAB.color, 14));
-        Text prompt = caption("PRESS ENTER TO PLAY", 33, 152, Constants.PLAYER_GREEN, 8);
+        Text prompt = centeredCaption("PRESS ENTER TO PLAY", 152, Constants.PLAYER_GREEN, 8);
         blinkTexts.add(prompt);
         titleOverlay.getChildren().add(prompt);
         addLegendRow(titleOverlay, AlienKind.SQUID, "= 30 POINTS", 168);
@@ -191,7 +193,7 @@ public final class GamePanel extends Parent {
 
         gameOverOverlay = new Group();
         gameOverOverlay.getChildren().add(caption("GAME OVER", 76, 120, Constants.UFO_RED, 12));
-        Text againPrompt = caption("PRESS ENTER TO PLAY AGAIN", 27, 150, Constants.PLAYER_GREEN, 8);
+        Text againPrompt = centeredCaption("PRESS ENTER TO PLAY AGAIN", 150, Constants.PLAYER_GREEN, 8);
         blinkTexts.add(againPrompt);
         gameOverOverlay.getChildren().add(againPrompt);
         gameOverOverlay.setVisible(false);
@@ -202,7 +204,7 @@ public final class GamePanel extends Parent {
         pauseOverlay.setVisible(false);
         overlays.getChildren().add(pauseOverlay);
 
-        waveMsg = caption("", 92, 130, Constants.PLAYER_GREEN, 8);
+        waveMsg = caption("", 92, 14, Constants.PLAYER_GREEN, 8);
         waveMsg.setVisible(false);
         overlays.getChildren().add(waveMsg);
     }
@@ -221,6 +223,17 @@ public final class GamePanel extends Parent {
         text.setFill(color);
         text.setX(x);
         text.setY(baselineY);
+        return text;
+    }
+
+    /**
+     * Like {@link #caption}, but horizontally centered on the 224px screen.
+     * The rendered width is measured while x is still 0 (a Text node's bounds
+     * include its own x), then x is set so the text straddles the center.
+     */
+    private Text centeredCaption(String content, double baselineY, Color color, double size) {
+        Text text = caption(content, 0, baselineY, color, size);
+        text.setX((Constants.GAME_W - text.prefWidth(-1)) / 2);
         return text;
     }
 
@@ -243,6 +256,7 @@ public final class GamePanel extends Parent {
         for (Text b : blinkTexts) {
             b.setVisible(blinkOn);
         }
+        updateWaveBanner(dt);
 
         switch (state) {
             case TITLE, GAME_OVER -> {
@@ -313,9 +327,29 @@ public final class GamePanel extends Parent {
         marchStep = 0;
         wave++;
         waveMsg.setText("WAVE " + wave);
+        waveMsgT = Constants.WAVE_MSG_TIME;
+        waveMsgBlink = 0;
         waveMsg.setVisible(true);
         hud.update(score, hiScore, wave, lives);
         state = State.PLAYING;
+    }
+
+    /**
+     * The wave banner sits at the top of the playfield, blinks like the
+     * other retro texts, and blinks out of the way after a few seconds.
+     */
+    private void updateWaveBanner(double dt) {
+        if (waveMsgT <= 0) {
+            return;
+        }
+        waveMsgT -= dt;
+        waveMsgBlink += dt;
+        if (waveMsgT <= 0) {
+            waveMsg.setVisible(false);
+            return;
+        }
+        boolean on = (waveMsgBlink / Constants.WAVE_MSG_BLINK) % 2 < 1;
+        waveMsg.setVisible(on);
     }
 
     private void updatePlayer(double dt) {
