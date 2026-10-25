@@ -29,6 +29,10 @@ public final class Hud {
     public Hud() {
         createText("SCORE<1>", 8);
         createText("HI-SCORE", 152);
+        scoreValue.setX(8);
+        scoreValue.setY(17);
+        hiValue.setX(152);
+        hiValue.setY(17);
         node.getChildren().addAll(scoreValue, hiValue, waveValue, livesValue);
 
         Rectangle floor = new Rectangle(0, Constants.FLOOR_Y, Constants.GAME_W, 1);
