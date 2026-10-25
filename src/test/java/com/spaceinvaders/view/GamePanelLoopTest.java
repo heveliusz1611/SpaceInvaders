@@ -342,6 +342,36 @@ class GamePanelLoopTest {
         assertTrue(fxList.isEmpty(), "expired burst effects detach and vanish");
     }
 
+    @Test
+    void extraLifeAwardedAtClassicThresholdButNotWhenTheBankIsFull() {
+        spawnPanel();
+        start();
+
+        // just below the classic 1500-point bonus line: nothing happens
+        Reflect.set(panel, "score", Constants.EXTRA_LIFE_AT - 1);
+        update(0.016);
+        assertEquals(3, (int) Reflect.get(panel, "lives"), "no bonus life below the threshold");
+
+        // reach the threshold with reserve cannons free: a cannon is granted
+        Reflect.set(panel, "score", Constants.EXTRA_LIFE_AT);
+        update(0.016);
+        assertEquals(4, (int) Reflect.get(panel, "lives"),
+                "the (lives < 6) branch pays out one extra cannon");
+        assertTrue((boolean) Reflect.get(panel, "extraLifeGiven"),
+                "the bonus is one-off per game");
+        Hud hud = Reflect.getAs(panel, "hud");
+        Text livesValue = Reflect.getAs(hud, "livesValue");
+        assertEquals("4", livesValue.getText(), "the HUD counter follows the new life");
+
+        // a full six-cannon bank: the (lives < 6) branch is false, no seventh cannon
+        Reflect.set(panel, "lives", 6);
+        Reflect.set(panel, "extraLifeGiven", false);
+        Reflect.set(panel, "score", Constants.EXTRA_LIFE_AT + 500);
+        update(0.016);
+        assertEquals(6, (int) Reflect.get(panel, "lives"),
+                "the cannon bank caps out, the bonus is withheld");
+    }
+
     // ------------------------------------------------------------ helpers
 
     private Alien firstAliveAlien() {
