@@ -74,6 +74,14 @@ java --module-path <javafx-sdk>/lib --add-modules javafx.controls -jar build/lib
 
 The report is written to `build/reports/jacoco/test/html/index.html`.
 
+### Coverage target
+
+`./gradlew check` runs `jacocoTestCoverageVerification`, which fails the build
+when coverage drops below the target: **80% instruction coverage** and
+**80% branch coverage**. The current suite sits well above those thresholds
+(instructions ~98%, branches ~91%), driven by headless tests of the game loop,
+view layer, input, audio synthesis and the models.
+
 ## Project Structure
 
 ```

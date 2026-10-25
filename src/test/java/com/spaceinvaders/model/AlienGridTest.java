@@ -105,4 +105,46 @@ class AlienGridTest {
         }
         assertNull(grid.randomBottomAlien(new Random(1)));
     }
+
+    @Test
+    void emptyGridStepsNowhere() {
+        AlienGrid grid = new AlienGrid();
+        for (int row = 0; row < Constants.GRID_ROWS; row++) {
+            for (int col = 0; col < Constants.GRID_COLS; col++) {
+                grid.kill(row, col);
+            }
+        }
+        assertEquals(AlienGrid.Move.LEFT, grid.step(), "an empty formation cannot march");
+        assertEquals(0.0, grid.getTx(), 1e-9, "and it does not advance either");
+    }
+
+    @Test
+    void bottomLocalYTracksTheLowestLiveRow() {
+        AlienGrid grid = new AlienGrid();
+        assertEquals((double) Constants.GRID_ROWS * Constants.CELL_H, grid.bottomLocalY(), 1e-9,
+                "full grid bottoms out on the last row");
+        for (int col = 0; col < Constants.GRID_COLS; col++) {
+            grid.kill(4, col);
+        }
+        assertEquals((double) (Constants.GRID_ROWS - 1) * Constants.CELL_H, grid.bottomLocalY(), 1e-9,
+                "with row 4 gone the bottom row is row 3");
+        for (int row = 0; row < Constants.GRID_ROWS; row++) {
+            for (int col = 0; col < Constants.GRID_COLS; col++) {
+                grid.kill(row, col);
+            }
+        }
+        assertEquals(0.0, grid.bottomLocalY(), 1e-9, "an empty formation has no bottom");
+    }
+
+    @Test
+    void steppingSkipsDeadCellsWhenMeasuringTheFormation() {
+        AlienGrid grid = new AlienGrid();
+        grid.kill(0, 0);   // punch holes in the leading and trailing columns
+        grid.kill(4, Constants.GRID_COLS - 1);
+        AlienGrid.Move first = grid.step();
+        assertEquals(AlienGrid.Move.LEFT, first,
+                "the formation still marches left with its corners shot away");
+        assertEquals(-Constants.STEP_X, grid.getTx(), 1e-9,
+                "first step advanced one STEP_X left, holes ignored");
+    }
 }
