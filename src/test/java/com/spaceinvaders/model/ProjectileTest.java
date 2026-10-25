@@ -5,6 +5,8 @@ import com.spaceinvaders.sprites.SpriteFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javafx.scene.Group;
@@ -62,8 +64,8 @@ class ProjectileTest {
         Group sprite = bomb.node;
         assertEquals(2, sprite.getChildren().size(), "bomb needs exactly two anim frames");
 
-        Group frameA = (Group) sprite.getChildren().get(0);
-        Group frameB = (Group) sprite.getChildren().get(1);
+        Group frameA = (Group) sprite.getChildren().getFirst();
+        Group frameB = (Group) sprite.getChildren().getLast();
         assertTrue(frameA.isVisible(), "squiggle starts on frame A");
         assertFalse(frameB.isVisible(), "squiggle starts with frame B hidden");
 
@@ -76,14 +78,14 @@ class ProjectileTest {
                 .mapToDouble(n -> ((Rectangle) n).getY()).min().orElse(-1)));
         assertEquals(6, (int) Math.round(frameA.getChildren().stream()
                 .mapToDouble(n -> ((Rectangle) n).getY()).max().orElse(-1)));
-        assertEquals(Constants.HUD_WHITE, ((Rectangle) frameA.getChildren().get(0)).getFill());
+        assertEquals(Constants.HUD_WHITE, ((Rectangle) frameA.getChildren().getFirst()).getFill());
     }
 
     @Test
     void bombAnimFlipsEveryTenthOfASecond() {
         Projectile bomb = Projectile.bomb(0, 0, 55);
-        Group frameA = (Group) bomb.node.getChildren().get(0);
-        Group frameB = (Group) bomb.node.getChildren().get(1);
+        Group frameA = (Group) bomb.node.getChildren().getFirst();
+        Group frameB = (Group) bomb.node.getChildren().getLast();
 
         bomb.update(0.05);
         assertTrue(frameA.isVisible(), "under the interval the frame must not flip yet");
@@ -109,8 +111,8 @@ class ProjectileTest {
         // two bullets must never share a sprite, or removing one breaks the other
         Projectile a = Projectile.bullet(0, 0);
         Projectile b = Projectile.bullet(0, 0);
-        assertTrue(a.node != b.node, "each bullet owns its sprite");
-        assertTrue(a.node.getParent() == null, "shots start detached from the scene");
+        assertNotSame(a.node, b.node, "each bullet owns its sprite");
+        assertNull(a.node.getParent(), "shots start detached from the scene");
     }
 
     @Test
@@ -118,7 +120,7 @@ class ProjectileTest {
         assertEquals(4, SpriteFactory.bullet().getChildren().size());
         Group[] frames = SpriteFactory.bombFrames();
         assertEquals(2, frames.length);
-        assertTrue(frames[0] != frames[1], "frames must be distinct nodes");
-        assertEquals(Color.web("#F8F8F8"), ((Rectangle) frames[1].getChildren().get(0)).getFill());
+        assertNotSame(frames[0], frames[1], "frames must be distinct nodes");
+        assertEquals(Color.web("#F8F8F8"), ((Rectangle) frames[1].getChildren().getFirst()).getFill());
     }
 }

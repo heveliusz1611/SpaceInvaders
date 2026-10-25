@@ -43,7 +43,7 @@ class HudTest {
         assertEquals(152, hi.getX(), "HI-SCORE digits align with the HI-SCORE label");
         assertEquals(17, hi.getY(), "digits on the line below the label");
         assertTrue(score.isVisible() && hi.isVisible());
-        assertTrue(text("scoreValue").getFont().getSize() == 8,
+        assertEquals(8, text("scoreValue").getFont().getSize(),
                 "readouts use the fixed 8px monospaced face");
     }
 

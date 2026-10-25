@@ -29,6 +29,8 @@ public class SpaceInvadersGame extends Application {
         panel.start();
     }
 
+    // entry point invoked by the Gradle application plugin (see mainClass in build.gradle)
+    @SuppressWarnings("unused")
     public static void main(String[] args) {
         launch(args);
     }

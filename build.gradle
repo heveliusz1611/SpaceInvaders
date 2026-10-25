@@ -41,7 +41,7 @@ application {
 
 // Allow JavaFX's glass native loader under newer JDKs (removes JNI warning)
 tasks.named('run') {
-    jvmArgs = ['--enable-native-access=javafx.graphics']
+    jvmArguments = ['--enable-native-access=javafx.graphics']
 }
 
 // Testing tasks

@@ -1,10 +1,10 @@
-package com.spaceinvaders.model;
+package com.spaceinvaders.sprites;
 
 import com.spaceinvaders.config.Constants;
-import com.spaceinvaders.sprites.SpriteData;
-import com.spaceinvaders.sprites.SpriteFactory;
+import com.spaceinvaders.model.AlienKind;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javafx.scene.Group;
@@ -75,7 +75,7 @@ class SpriteFactoryTest {
     void deathFramesAreTwoDistinctGroups() {
         Group[] frames = SpriteFactory.playerDeathFrames();
         assertEquals(2, frames.length);
-        assertTrue(frames[0] != frames[1], "the two debris frames must be distinct");
+        assertNotSame(frames[0], frames[1], "the two debris frames must be distinct");
         assertPixelsMatchPattern(SpriteData.CANNON_DEATH_A, Constants.PLAYER_GREEN, frames[0]);
         assertPixelsMatchPattern(SpriteData.CANNON_DEATH_B, Constants.PLAYER_GREEN, frames[1]);
     }
@@ -84,7 +84,7 @@ class SpriteFactoryTest {
     void bombFramesAreTwoDistinctGroups() {
         Group[] frames = SpriteFactory.bombFrames();
         assertEquals(2, frames.length);
-        assertTrue(frames[0] != frames[1], "the two squiggle frames must be distinct");
+        assertNotSame(frames[0], frames[1], "the two squiggle frames must be distinct");
         assertPixelsMatchPattern(SpriteData.BOMB_A, Constants.HUD_WHITE, frames[0]);
         assertPixelsMatchPattern(SpriteData.BOMB_B, Constants.HUD_WHITE, frames[1]);
     }

@@ -29,12 +29,13 @@ public final class Reflect {
     }
 
     /** Invokes a no-arg method, private or not, by walking up the class chain. */
-    public static Object invoke(Object target, String name) {
+    public static void invoke(Object target, String name) {
         for (Class<?> c = target.getClass(); c != null; c = c.getSuperclass()) {
             try {
                 Method method = c.getDeclaredMethod(name);
                 method.setAccessible(true);
-                return method.invoke(target);
+                method.invoke(target);
+                return;
             } catch (NoSuchMethodException ignored) {
                 // keep climbing toward the superclasses
             } catch (ReflectiveOperationException e) {

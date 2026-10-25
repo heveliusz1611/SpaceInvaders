@@ -10,6 +10,7 @@ import com.spaceinvaders.testutil.Reflect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javafx.scene.Group;
@@ -46,7 +47,7 @@ class GamePanelTest {
     @Test
     void buildsThePlayfieldAndStartsIdleOnTheTitleScreen() {
         spawnPanel();
-        assertTrue(content.getChildren().size() > 0, "playfield has content");
+        assertFalse(content.getChildren().isEmpty(), "playfield has content");
         Hud hud = Reflect.getAs(panel, "hud");
         assertTrue(content.getChildren().contains(hud.node), "HUD is part of the scene");
         Player player = Reflect.getAs(panel, "player");
@@ -66,7 +67,7 @@ class GamePanelTest {
         assertTrue(bullets.isEmpty(), "the hit bullet left the tracking list");
         assertFalse(content.getChildren().contains(bullet.node),
                 "the hit bullet's sprite must leave the scene graph - it used to linger here");
-        assertTrue(bullet.node.getParent() == null, "sprite fully detached");
+        assertNull(bullet.node.getParent(), "sprite fully detached");
         assertFalse(alien.isAlive(), "the invader went down");
         assertTrue((int) Reflect.get(panel, "score") > 0, "and paid out points");
     }
@@ -81,7 +82,7 @@ class GamePanelTest {
         Reflect.invoke(panel, "checkBulletCollisions");
 
         assertTrue(bullets.isEmpty());
-        assertTrue(bullet.node.getParent() == null);
+        assertNull(bullet.node.getParent());
     }
 
     @Test
@@ -94,7 +95,7 @@ class GamePanelTest {
         Reflect.invoke(panel, "checkBombCollisions");
 
         assertTrue(bombs.isEmpty());
-        assertTrue(bomb.node.getParent() == null, "bombs must not linger at the floor line");
+        assertNull(bomb.node.getParent(), "bombs must not linger at the floor line");
     }
 
     @Test
